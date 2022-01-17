@@ -6,10 +6,14 @@ import static org.folio.des.domain.dto.ExportType.BULK_EDIT_IDENTIFIERS;
 import static org.folio.des.domain.dto.ExportType.BULK_EDIT_QUERY;
 import static org.hibernate.internal.util.StringHelper.isBlank;
 
+import org.folio.des.domain.dto.DownloadSources;
 import org.folio.des.domain.dto.Job;
 import org.folio.des.domain.dto.JobCollection;
 import org.folio.des.rest.resource.JobsApi;
+import org.folio.des.service.DownloadManager;
 import org.folio.des.service.JobService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +30,13 @@ import java.util.UUID;
 public class JobsController implements JobsApi {
 
   private final JobService service;
+  private final DownloadManager downloadManager;
+
+  @Override
+  public ResponseEntity<Resource> downloadFromRepository(UUID id, String source) {
+    Job job = service.get(id);
+    return ResponseEntity.ok(new ByteArrayResource(downloadManager.download(job, DownloadSources.fromValue(source))));
+  }
 
   @Override
   public ResponseEntity<Job> getJobById(UUID id) {

@@ -147,6 +147,18 @@
         <version>2.13.1</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.sshd</groupId>
+        <artifactId>sshd-sftp</artifactId>
+        <version>2.8.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-configuration-processor</artifactId>
+        <optional>true</optional>
+      </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -189,6 +201,14 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+          <groupId>org.testcontainers</groupId>
+          <artifactId>testcontainers</artifactId>
+          <version>${testcontainers.version}</version>
+          <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-standalone</artifactId>
@@ -292,7 +312,7 @@
                             <generateApiDocumentation>true</generateApiDocumentation>
                             <generateModels>true</generateModels>
                             <modelsToGenerate>
-                                Parameter,Error,Errors,ExportType,JobStatus,Metadata,Job,JobCollection,Metadata,Tags,User,UserCollection,ResultInfo,Personal,Diagnostic,Facet,Address,FacetValue,Configuration,ConfigurationCollection,IdentifierType,EntityType,Progress
+                                Parameter,Error,Errors,ExportType,JobStatus,Metadata,Job,JobCollection,Metadata,Tags,User,UserCollection,ResultInfo,Personal,Diagnostic,Facet,Address,FacetValue,Configuration,ConfigurationCollection,IdentifierType,EntityType,Progress,DownloadSources
                             </modelsToGenerate>
                             <generateModelTests>false</generateModelTests>
                             <generateSupportingFiles>true</generateSupportingFiles>

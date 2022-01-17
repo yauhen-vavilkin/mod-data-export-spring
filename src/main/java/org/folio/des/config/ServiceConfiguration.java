@@ -12,13 +12,14 @@ import org.folio.des.converter.DefaultModelConfigToExportConfigConverter;
 import org.folio.des.converter.ExportConfigConverterResolver;
 import org.folio.des.converter.aqcuisition.EdifactExportConfigToModelConfigConverter;
 import org.folio.des.converter.aqcuisition.EdifactOrdersExportConfigToTaskTriggerConverter;
-import org.folio.des.domain.dto.ExportConfig;
-import org.folio.des.domain.dto.ExportType;
-import org.folio.des.domain.dto.ExportTypeSpecificParameters;
-import org.folio.des.domain.dto.ModelConfiguration;
+import org.folio.des.domain.dto.*;
+import org.folio.des.repository.FileSourceProperties;
 import org.folio.des.scheduling.acquisition.AcqSchedulingProperties;
 import org.folio.des.scheduling.acquisition.EdifactOrdersExportJobScheduler;
 import org.folio.des.scheduling.acquisition.EdifactScheduledJobInitializer;
+import org.folio.des.service.DownloadFileService;
+import org.folio.des.service.DownloadFileServiceResolver;
+import org.folio.des.service.DownloadManager;
 import org.folio.des.service.JobService;
 import org.folio.des.service.config.ExportConfigService;
 import org.folio.des.service.config.acquisition.EdifactOrdersExportService;
@@ -26,6 +27,7 @@ import org.folio.des.service.config.impl.BaseExportConfigService;
 import org.folio.des.service.config.impl.BurSarFeesFinesExportConfigService;
 import org.folio.des.service.config.impl.ExportConfigServiceResolver;
 import org.folio.des.service.config.impl.ExportTypeBasedConfigManager;
+import org.folio.des.service.impl.aqcuisition.SFTPDownloadFileService;
 import org.folio.des.validator.BurSarFeesFinesExportParametersValidator;
 import org.folio.des.validator.ExportConfigValidatorResolver;
 import org.folio.des.validator.acquisition.EdifactOrdersExportParametersValidator;
@@ -61,12 +63,24 @@ public class ServiceConfiguration {
   }
 
   @Bean
+  DownloadFileServiceResolver downloadFileServiceResolver(SFTPDownloadFileService sftpDownloadFileService) {
+    Map<DownloadSources, DownloadFileService> downloadService = new HashMap<>();
+    downloadService.put(DownloadSources.SFTP, sftpDownloadFileService);
+    return new DownloadFileServiceResolver(downloadService);
+  }
+
+  @Bean
   ExportTypeBasedConfigManager exportTypeBasedConfigManager(ConfigurationClient client,
                       ExportConfigServiceResolver exportConfigServiceResolver,
                       BaseExportConfigService baseExportConfigService,
                       DefaultModelConfigToExportConfigConverter defaultModelConfigToExportConfigConverter) {
     return new ExportTypeBasedConfigManager(client, exportConfigServiceResolver,
                       baseExportConfigService, defaultModelConfigToExportConfigConverter);
+  }
+
+  @Bean
+  DownloadManager downloadManager(DownloadFileServiceResolver downloadFileServiceResolver, FileSourceProperties fileSourceProperties) {
+    return new DownloadManager(downloadFileServiceResolver, fileSourceProperties);
   }
 
   @Bean

@@ -122,12 +122,44 @@ paths:
                 $ref: "#/components/examples/errors"
               schema:
                 $ref: "#/components/schemas/errors"
+  /jobs/{id}/exported-files/data:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: UUID of the job
+        schema:
+          $ref: "#/components/schemas/UUID"
+    get:
+      description: Download file from repository
+      operationId: downloadFromRepository
+      parameters:
+        - name: source
+          in: query
+          required: true
+          description: Type of the repository
+          schema:
+            type: string
+            enum:
+              - MINIO
+              - SFTP
+              - FTP
+      responses:
+        "200":
+          description: Job successfully retrieved
+          content:
+            application/octet-stream:
+                schema:
+                  type: string
+                  format: binary
 components:
   schemas:
     jobStatus:
       $ref: '../../../../folio-export-common/schemas/jobStatus.json#/JobStatus'
     exportType:
       $ref: '../../../../folio-export-common/schemas/exportType.json#/ExportType'
+    sourceType:
+      $ref: '../../../../folio-export-common/schemas/downloadSources.json#/DownloadSources'
     job:
       $ref: '../../../../folio-export-common/schemas/job.json#/Job'
     jobCollection:
