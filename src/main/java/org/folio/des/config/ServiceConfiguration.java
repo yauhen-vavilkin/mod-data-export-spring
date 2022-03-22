@@ -1,8 +1,17 @@
 package org.folio.des.config;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.javacrumbs.shedlock.core.DefaultLockManager;
+import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
+import net.javacrumbs.shedlock.core.LockConfigurationExtractor;
+import net.javacrumbs.shedlock.core.LockManager;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.core.LockingTaskExecutor;
+import net.javacrumbs.shedlock.spring.LockableTaskScheduler;
+import net.javacrumbs.shedlock.support.annotation.NonNull;
 import org.folio.des.builder.job.BulkEditQueryJobCommandBuilder;
 import org.folio.des.builder.job.BurSarFeeFinesJobCommandBuilder;
 import org.folio.des.builder.job.CirculationLogJobCommandBuilder;
@@ -14,6 +23,7 @@ import org.folio.des.builder.scheduling.ScheduledTaskBuilder;
 import org.folio.des.client.ConfigurationClient;
 import org.folio.des.converter.DefaultExportConfigToModelConfigConverter;
 import org.folio.des.converter.DefaultModelConfigToExportConfigConverter;
+import org.folio.des.converter.DefaultSchedulerDurationConverter;
 import org.folio.des.converter.ExportConfigConverterResolver;
 import org.folio.des.converter.aqcuisition.EdifactExportConfigToModelConfigConverter;
 import org.folio.des.converter.aqcuisition.EdifactOrdersExportConfigToTaskTriggerConverter;
@@ -25,6 +35,8 @@ import org.folio.des.domain.dto.ModelConfiguration;
 import org.folio.des.scheduling.acquisition.AcqSchedulingProperties;
 import org.folio.des.scheduling.acquisition.EdifactOrdersExportJobScheduler;
 import org.folio.des.scheduling.acquisition.EdifactScheduledJobInitializer;
+import org.folio.des.scheduling.base.LockableThreadPoolTaskScheduler;
+import org.folio.des.scheduling.base.StorageLockConfigurationExtractor;
 import org.folio.des.service.JobService;
 import org.folio.des.service.config.ExportConfigService;
 import org.folio.des.service.config.acquisition.EdifactOrdersExportService;
@@ -35,18 +47,26 @@ import org.folio.des.service.config.impl.ExportTypeBasedConfigManager;
 import org.folio.des.validator.BurSarFeesFinesExportParametersValidator;
 import org.folio.des.validator.ExportConfigValidatorResolver;
 import org.folio.des.validator.acquisition.EdifactOrdersExportParametersValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.EmbeddedValueResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.util.StringValueResolver;
 import org.springframework.validation.Validator;
+import net.javacrumbs.shedlock.support.StorageBasedLockProvider;
+import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider;
+
+import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan("org.folio.des")
 public class ServiceConfiguration {
+
   @Bean
   ExportConfigConverterResolver exportConfigConverterResolver(DefaultExportConfigToModelConfigConverter defaultExportConfigToModelConfigConverter,
                       EdifactExportConfigToModelConfigConverter edifactExportConfigToModelConfigConverter) {
@@ -128,13 +148,34 @@ public class ServiceConfiguration {
     return new EdifactScheduledTaskBuilder(jobService, contextHelper, acqSchedulingProperties);
   }
 
+  @Bean DefaultSchedulerDurationConverter defaultSchedulerDurationConverter() {
+    return new DefaultSchedulerDurationConverter();
+  }
+
+  @Bean LockConfigurationExtractor lockConfigurationExtractor(DefaultSchedulerDurationConverter defaultSchedulerDurationConverter) {
+    return new StorageLockConfigurationExtractor(Duration.ofMillis(10000), Duration.ofMillis(10000), strVal -> null, defaultSchedulerDurationConverter);
+  }
+
+  @Bean LockProvider lockProvider(DataSource dataSource) {
+    return new JdbcLockProvider(dataSource);
+  }
+
+  @Bean LockManager lockManager(LockProvider lockProvider, LockConfigurationExtractor lockConfigurationExtractor) {
+    return new DefaultLockManager(lockProvider, lockConfigurationExtractor);
+  }
+
+  @Bean LockableThreadPoolTaskScheduler lockableThreadPoolTaskScheduler(LockManager lockManager) {
+    return new LockableThreadPoolTaskScheduler(new ThreadPoolTaskScheduler(), lockManager);
+  }
+
   @Bean(name = "edifactOrdersExportJobScheduler")
   @Qualifier("edifactOrdersExportJobScheduler")
   EdifactOrdersExportJobScheduler edifactOrdersExportJobScheduler(ScheduledTaskBuilder edifactScheduledTaskBuilder,
                     EdifactOrdersExportConfigToTaskTriggerConverter triggerConverter,
+                    LockableThreadPoolTaskScheduler lockableThreadPoolTaskScheduler,
                     @Value("${folio.schedule.acquisition.poolSize:10}") int poolSize) {
-    return new EdifactOrdersExportJobScheduler(new ThreadPoolTaskScheduler(), triggerConverter,
-      edifactScheduledTaskBuilder, poolSize);
+    return new EdifactOrdersExportJobScheduler(lockableThreadPoolTaskScheduler, triggerConverter,
+                    edifactScheduledTaskBuilder, poolSize);
   }
 
   @Bean

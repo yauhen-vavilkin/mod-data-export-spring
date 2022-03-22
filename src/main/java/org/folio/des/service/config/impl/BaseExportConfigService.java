@@ -3,6 +3,8 @@ package org.folio.des.service.config.impl;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.des.client.ConfigurationClient;
 import org.folio.des.converter.DefaultModelConfigToExportConfigConverter;
 import org.folio.des.converter.ExportConfigConverterResolver;
@@ -23,6 +25,8 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 @Log4j2
 public class BaseExportConfigService implements ExportConfigService {
+  private static final Logger logger = LogManager.getLogger(BaseExportConfigService.class);
+
   protected final ConfigurationClient client;
   protected final DefaultModelConfigToExportConfigConverter defaultModelConfigToExportConfigConverter;
   protected final ExportConfigConverterResolver exportConfigConverterResolver;
@@ -55,6 +59,7 @@ public class BaseExportConfigService implements ExportConfigService {
       configurationCollection.getConfigs().forEach(modelConfig -> exportConfigCollection
         .addConfigsItem(defaultModelConfigToExportConfigConverter.convert(modelConfig))
       );
+      logger.info(exportConfigCollection.getConfigs());
       return exportConfigCollection.totalRecords(exportConfigCollection.getConfigs().size());
     }
     return new ExportConfigCollection().totalRecords(0);
