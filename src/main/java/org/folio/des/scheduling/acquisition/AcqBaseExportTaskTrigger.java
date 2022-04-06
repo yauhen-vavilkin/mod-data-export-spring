@@ -59,6 +59,10 @@ public class AcqBaseExportTaskTrigger extends AbstractExportTaskTrigger {
                   .orElse(false) || !enableScheduler;
   }
 
+  @Override public String getTenantId() {
+    return null;
+  }
+
   private Date getNextTime(Date lastActualExecutionTime) {
     if (scheduleParameters == null) return null;
 

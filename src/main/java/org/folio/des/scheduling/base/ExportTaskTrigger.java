@@ -8,4 +8,5 @@ public interface ExportTaskTrigger extends Trigger {
 
   ScheduleParameters getScheduleParameters();
   boolean isDisabledSchedule();
+  String getTenantId();
 }

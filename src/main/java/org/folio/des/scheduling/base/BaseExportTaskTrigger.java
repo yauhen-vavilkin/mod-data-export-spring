@@ -76,6 +76,10 @@ public class BaseExportTaskTrigger extends AbstractExportTaskTrigger implements 
                    .orElse(false);
   }
 
+  @Override public String getTenantId() {
+    return null;
+  }
+
   @Override
   public int hashCode() {
     return super.hashCode();

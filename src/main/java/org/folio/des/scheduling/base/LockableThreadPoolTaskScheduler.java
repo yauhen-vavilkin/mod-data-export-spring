@@ -15,6 +15,7 @@ public class LockableThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
   public LockableThreadPoolTaskScheduler(ThreadPoolTaskScheduler taskScheduler, LockManager lockManager) {
     this.taskScheduler = taskScheduler;
     this.lockManager = lockManager;
+    this.taskScheduler.initialize();
   }
 
   @Override

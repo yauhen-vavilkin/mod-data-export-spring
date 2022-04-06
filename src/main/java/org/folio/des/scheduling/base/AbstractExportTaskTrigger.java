@@ -5,11 +5,12 @@ import org.folio.des.domain.dto.ScheduleParameters;
 import java.util.Objects;
 
 public abstract class AbstractExportTaskTrigger implements ExportTaskTrigger {
+  protected String tenantId;
   protected ScheduleParameters scheduleParameters;
 
   @Override
   public int hashCode() {
-    return Objects.hash(getScheduleParameters().getId());
+    return Objects.hash(tenantId, getScheduleParameters().getId());
   }
 
   @Override

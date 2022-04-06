@@ -4,14 +4,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.javacrumbs.shedlock.core.DefaultLockManager;
-import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
-import net.javacrumbs.shedlock.core.LockConfigurationExtractor;
-import net.javacrumbs.shedlock.core.LockManager;
-import net.javacrumbs.shedlock.core.LockProvider;
-import net.javacrumbs.shedlock.core.LockingTaskExecutor;
-import net.javacrumbs.shedlock.spring.LockableTaskScheduler;
-import net.javacrumbs.shedlock.support.annotation.NonNull;
+import javax.sql.DataSource;
+
 import org.folio.des.builder.job.BulkEditQueryJobCommandBuilder;
 import org.folio.des.builder.job.BurSarFeeFinesJobCommandBuilder;
 import org.folio.des.builder.job.CirculationLogJobCommandBuilder;
@@ -47,21 +41,20 @@ import org.folio.des.service.config.impl.ExportTypeBasedConfigManager;
 import org.folio.des.validator.BurSarFeesFinesExportParametersValidator;
 import org.folio.des.validator.ExportConfigValidatorResolver;
 import org.folio.des.validator.acquisition.EdifactOrdersExportParametersValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.EmbeddedValueResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.util.StringValueResolver;
 import org.springframework.validation.Validator;
-import net.javacrumbs.shedlock.support.StorageBasedLockProvider;
-import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider;
 
-import javax.sql.DataSource;
+import net.javacrumbs.shedlock.core.DefaultLockManager;
+import net.javacrumbs.shedlock.core.LockConfigurationExtractor;
+import net.javacrumbs.shedlock.core.LockManager;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider;
 
 @Configuration
 @ComponentScan("org.folio.des")
