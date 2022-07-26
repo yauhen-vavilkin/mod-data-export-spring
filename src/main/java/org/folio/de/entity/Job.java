@@ -40,6 +40,8 @@ public class Job {
 
   private String source;
 
+  private String tenant;
+
   private Boolean isSystemSource;
 
   @Enumerated(EnumType.STRING)

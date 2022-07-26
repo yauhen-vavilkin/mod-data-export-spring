@@ -1,17 +1,22 @@
 package org.folio.des.service;
 
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.folio.des.config.FolioExecutionContextHelper;
 import org.folio.des.config.kafka.KafkaService;
 import org.folio.des.domain.dto.JobStatus;
 import org.folio.de.entity.Job;
 import org.folio.des.repository.JobDataExportRepository;
 import org.folio.des.scheduling.ExportScheduler;
+import org.folio.des.security.AuthService;
+import org.folio.spring.DefaultFolioExecutionContext;
+import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -39,6 +44,9 @@ public class JobUpdatesService {
 
   private final JobDataExportRepository repository;
   private final ExportScheduler exportScheduler;
+  private final FolioExecutionContext folioExecutionContext;
+  private final FolioModuleMetadata folioModuleMetadata;
+  private final FolioExecutionContextHelper folioExecutionContextHelper;
 
   @Transactional
   @KafkaListener(
@@ -47,11 +55,21 @@ public class JobUpdatesService {
       topicPattern = "${application.kafka.topic-pattern}",
       groupId = "${application.kafka.group-id}")
   public void receiveJobExecutionUpdate(Job jobExecutionUpdate) {
-    log.info("Received {}.", jobExecutionUpdate);
+    Map<String, Collection<String>> okapiHeaders = new HashMap<>(folioExecutionContext.getOkapiHeaders());
+    log.info("why null: {}, {}", jobExecutionUpdate.getTenant(), Thread.currentThread().getName());
+//    var token = authService.loginSystemUser(jobExecutionUpdate.getTenant(), folioExecutionContext.getOkapiUrl());
+    okapiHeaders.put("x-okapi-tenant", List.of(jobExecutionUpdate.getTenant()));
+    log.info("token from map: {}", folioExecutionContextHelper.getHeader(jobExecutionUpdate.getTenant(), XOkapiHeaders.TOKEN));
+    okapiHeaders.put("x-okapi-token", List.of(folioExecutionContextHelper.getHeader(jobExecutionUpdate.getTenant(), XOkapiHeaders.TOKEN)));
+    var defaultFolioExecutionContext = new DefaultFolioExecutionContext(folioModuleMetadata, okapiHeaders);
+    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(defaultFolioExecutionContext);
+    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(defaultFolioExecutionContext);
+    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(defaultFolioExecutionContext);
+    log.info("Received {}, {}, {}.", jobExecutionUpdate, folioExecutionContext.getTenantId(), folioExecutionContext.getToken());
 
     Optional<Job> jobOptional = repository.findById(jobExecutionUpdate.getId());
     if (jobOptional.isEmpty()) {
-      log.error("Update for unknown job {}.", jobExecutionUpdate.getId());
+      log.error("Update for unknown job {}, {}.", jobExecutionUpdate.getId(), Thread.currentThread().getName());
       return;
     }
     var job = jobOptional.get();

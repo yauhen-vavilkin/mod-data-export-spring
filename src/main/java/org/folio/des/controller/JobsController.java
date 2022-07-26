@@ -44,6 +44,7 @@ public class JobsController implements JobsApi {
   @Override
   public ResponseEntity<Job> upsertJob(@RequestHeader("X-Okapi-Tenant") String tenantId, @Valid Job job) {
     job.setTenant(tenantId);
+    System.out.println("spring jobs controller upsertedJob: " + job);
     if (isMissingRequiredParameters(job)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

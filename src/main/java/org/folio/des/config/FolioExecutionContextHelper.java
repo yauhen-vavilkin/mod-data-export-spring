@@ -78,7 +78,7 @@ public class FolioExecutionContextHelper {
     FolioExecutionScopeExecutionContextManager.endFolioExecutionContext();
   }
 
-  private String getHeader(String tenantId, String headerName) {
+  public String getHeader(String tenantId, String headerName) {
     Collection<String> headerColl = !okapiHeaders.containsKey(tenantId) ? null : okapiHeaders.get(tenantId).get(headerName);
     return headerColl == null ? null : headerColl.stream().findFirst().filter(StringUtils::isNotBlank).orElse(null);
   }

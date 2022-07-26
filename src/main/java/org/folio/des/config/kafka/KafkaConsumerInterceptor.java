@@ -13,9 +13,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.folio.spring.DefaultFolioExecutionContext;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Log4j2
 public class KafkaConsumerInterceptor implements ConsumerInterceptor<Object, Object> {
@@ -29,9 +31,12 @@ public class KafkaConsumerInterceptor implements ConsumerInterceptor<Object, Obj
       ConsumerRecord<Object, Object> consumerRecord = iterator.next();
       Map<String, Collection<String>> okapiHeaders = headersToMap(consumerRecord.headers());
 
-      var defaultFolioExecutionContext = new DefaultFolioExecutionContext(folioModuleMetadata, okapiHeaders);
-      FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(defaultFolioExecutionContext);
-      log.info("FOLIO context initialized.");
+//      var defaultFolioExecutionContext = new DefaultFolioExecutionContext(folioModuleMetadata, okapiHeaders);
+//      FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(defaultFolioExecutionContext);
+//      log.info("FOLIO context initialized {}, {}", defaultFolioExecutionContext.getTenantId(), records.count());
+//      records.forEach(r -> {
+//        log.info("record tenant: {}", r.headers());
+//      });
     }
     return records;
   }

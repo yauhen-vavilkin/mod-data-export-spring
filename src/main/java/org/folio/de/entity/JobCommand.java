@@ -23,5 +23,6 @@ public class JobCommand {
   private IdentifierType identifierType;
   private EntityType entityType;
   private Progress progress;
+  private String tenant;
 
 }

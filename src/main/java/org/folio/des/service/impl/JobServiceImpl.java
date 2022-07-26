@@ -21,6 +21,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.des.config.FolioExecutionContextHelper;
+import org.folio.des.controller.TransactionHelper;
 import org.folio.des.domain.dto.ExportType;
 import org.folio.des.domain.dto.JobCollection;
 import org.folio.des.domain.dto.JobStatus;
@@ -62,6 +63,7 @@ public class JobServiceImpl implements JobService {
   private final FolioExecutionContext context;
   private final CQLService cqlService;
   private final BulkEditConfigService bulkEditConfigService;
+  private final TransactionHelper transactionHelper;
 
   private Set<ExportType> bulkEditTypes = Set.of(BULK_EDIT_IDENTIFIERS, BULK_EDIT_QUERY, BULK_EDIT_UPDATE);
 
@@ -137,9 +139,9 @@ public class JobServiceImpl implements JobService {
     }
 
     var jobCommand = jobExecutionService.prepareStartJobCommand(result);
-
     log.info("Upserting {}.", result);
-    result = repository.save(result);
+    final var result1 = result;
+    result = transactionHelper.runInTransaction(() -> repository.save(result1));
     log.info("Upserted {}.", result);
 
     jobCommand.setId(result.getId());
@@ -148,6 +150,8 @@ public class JobServiceImpl implements JobService {
 
     return entityToDto(result);
   }
+
+
 
   @Transactional
   @Override
@@ -209,6 +213,7 @@ public class JobServiceImpl implements JobService {
     result.setIdentifierType(entity.getIdentifierType());
     result.setEntityType(entity.getEntityType());
     result.setProgress(entity.getProgress());
+    result.setTenant(entity.getTenant());
 
     var metadata = new Metadata();
     metadata.setCreatedDate(entity.getCreatedDate());
@@ -242,6 +247,7 @@ public class JobServiceImpl implements JobService {
     result.setIdentifierType(dto.getIdentifierType());
     result.setEntityType(dto.getEntityType());
     result.setProgress(dto.getProgress());
+    result.setTenant(dto.getTenant());
 
     if (dto.getMetadata() != null) {
       result.setCreatedDate(dto.getMetadata().getCreatedDate());

@@ -86,6 +86,7 @@ public class  JobExecutionService {
     result.setIdentifierType(job.getIdentifierType());
     result.setEntityType(job.getEntityType());
     result.setProgress(job.getProgress());
+    result.setTenant(job.getTenant());
     return result;
   }
 }

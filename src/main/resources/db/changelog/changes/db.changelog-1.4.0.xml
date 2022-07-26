@@ -31,4 +31,10 @@
     </sql>
   </changeSet>
 
+  <changeSet id="MODEXPS-0000@@multi tenant" author="Oleksandr_Bozhko">
+    <sql dbms="postgresql">
+      ALTER TABLE job ADD COLUMN tenant varchar(50);
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>
