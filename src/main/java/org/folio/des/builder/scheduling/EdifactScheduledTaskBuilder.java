@@ -35,7 +35,7 @@ public class EdifactScheduledTaskBuilder extends BaseScheduledTaskBuilder {
       log.info("Build task : is module registered: {} ", contextHelper.isModuleRegistered());
       boolean isJobScheduleAllowed = ScheduleUtil.isJobScheduleAllowed(acqSchedulingProperties.isRunOnlyIfModuleRegistered(),
                                                                        contextHelper.isModuleRegistered());
-      if (isJobScheduleAllowed) {
+      //if (isJobScheduleAllowed) {
           contextHelper.initScope(job.getTenant());
           Job resultJob = jobService.upsertAndSendToKafka(job, false);
           log.info("Configured task saved in DB jobId: {}", resultJob.getId());
@@ -45,7 +45,7 @@ public class EdifactScheduledTaskBuilder extends BaseScheduledTaskBuilder {
             log.info("Configured task scheduled and KafkaTopic sent for jobId: {}", resultJob.getId());
           }
           contextHelper.finishContext();
-      }
+      //}
     };
   }
 }
