@@ -13,7 +13,7 @@ public class TestJobBuilder {
   public static final String TESTJOBCONSTANT = "TESTJOBCONSTANT";
 
   public JobDetail getTestJobDetail(JobKey jobKey) {
-      return JobBuilder.newJob(EdifactJob.class)
+      return JobBuilder.newJob(TestJob.class)
         .usingJobData(TESTJOBCONSTANT,"test value")
         .withIdentity(jobKey)
         .build();
