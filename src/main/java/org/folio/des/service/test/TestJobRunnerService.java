@@ -23,24 +23,32 @@ public class TestJobRunnerService {
   private final Scheduler scheduler;
 
 
-  public void runTestJob() throws SchedulerException {
+  public void runTestJob() {
 
     log.info("Inside runTestJob");
 
-    JobKey jobKey = JobKey.jobKey("JOB_ONE", JOB_ONE_GRP);
+    try {
 
-    JobDetail testJobDetail = testJobBuilder.getTestJobDetail(jobKey);
+      JobKey jobKey = JobKey.jobKey("JOB_ONE", JOB_ONE_GRP);
 
-    var startTime = new Date();
+      JobDetail testJobDetail = testJobBuilder.getTestJobDetail(jobKey);
 
-    SimpleTrigger testTrigger = newTrigger()
-      .withSchedule(SimpleScheduleBuilder
-        .simpleSchedule().withIntervalInSeconds(5).withRepeatCount(2))
-      .withIdentity(UUID.randomUUID().toString(), JOB_ONE_GRP)
-      .startAt(startTime)
-      .build();
+      var startTime = new Date();
 
-    scheduler.scheduleJob(testJobDetail,testTrigger);
+      SimpleTrigger testTrigger = newTrigger()
+        .withSchedule(SimpleScheduleBuilder
+          .simpleSchedule().withIntervalInSeconds(5).withRepeatCount(2))
+        .withIdentity(UUID.randomUUID().toString(), JOB_ONE_GRP)
+        .startAt(startTime)
+        .build();
+
+      scheduler.scheduleJob(testJobDetail,testTrigger);
+    } catch (Exception e) {
+
+      log.error("error is :",e);
+
+    }
+
 
 
 
