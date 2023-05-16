@@ -45,7 +45,12 @@ public class ExportTypeBasedConfigManager {
     }
     exportConfigServiceResolver.resolve(exportConfig.getType())
             .ifPresentOrElse(service -> service.updateConfig(configId, exportConfig),
-              () -> defaultExportConfigService.updateConfig(configId, exportConfig));
+              () -> {
+                defaultExportConfigService.updateConfig(configId, exportConfig);
+                if(ExportType.BURSAR_FEES_FINES.equals(exportConfig.getType())) {
+                  log.info("Bursar Job trigger needs to be done");
+                }
+              });
   }
 
   public ModelConfiguration postConfig(ExportConfig exportConfig) {
