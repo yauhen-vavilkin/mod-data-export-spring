@@ -6,11 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.des.client.ConfigurationClient;
 import org.folio.des.converter.DefaultModelConfigToExportConfigConverter;
 import org.folio.des.converter.ExportConfigConverterResolver;
-import org.folio.des.domain.dto.ConfigurationCollection;
-import org.folio.des.domain.dto.ExportConfig;
-import org.folio.des.domain.dto.ExportConfigCollection;
-import org.folio.des.domain.dto.ExportTypeSpecificParameters;
-import org.folio.des.domain.dto.ModelConfiguration;
+import org.folio.des.domain.dto.*;
 import org.folio.des.service.config.ExportConfigService;
 import org.folio.des.validator.ExportConfigValidatorResolver;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -30,6 +26,13 @@ public class BaseExportConfigService implements ExportConfigService {
 
   @Override
   public void updateConfig(String configId, ExportConfig exportConfig) {
+    log.info("Inside updateConfig-----");
+
+    System.out.println("type is : "+ExportType.BURSAR_FEES_FINES.equals(exportConfig.getType()));
+
+    if(ExportType.BURSAR_FEES_FINES.equals(exportConfig.getType())) {
+      log.info("Bursar Job trigger needs to be done");
+    }
     log.info("Putting {} {}.", configId, exportConfig);
     validateIncomingExportConfig(exportConfig);
     var config = createConfigModel(exportConfig);
