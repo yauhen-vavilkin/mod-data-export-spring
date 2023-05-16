@@ -46,6 +46,7 @@ public class ExportTypeBasedConfigManager {
     exportConfigServiceResolver.resolve(exportConfig.getType())
             .ifPresentOrElse(service -> service.updateConfig(configId, exportConfig),
               () -> {
+                System.out.println("Inside Runnable");
                 defaultExportConfigService.updateConfig(configId, exportConfig);
                 System.out.println("bursar match:"+ExportType.BURSAR_FEES_FINES.equals(exportConfig.getType()));
                 if(ExportType.BURSAR_FEES_FINES.equals(exportConfig.getType())) {

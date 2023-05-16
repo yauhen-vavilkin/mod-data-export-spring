@@ -41,6 +41,7 @@ public class ConfigsController implements ConfigsApi {
 
   @Override
   public ResponseEntity<Void> putExportConfig(String configId, @RequestHeader("X-Okapi-Tenant") String tenantId, ExportConfig exportConfig) {
+    System.out.println("putExportConfig-------");
     exportConfig.setTenant(tenantId);
     manager.updateConfig(configId, exportConfig);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
