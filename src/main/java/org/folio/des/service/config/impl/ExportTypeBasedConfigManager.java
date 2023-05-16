@@ -47,6 +47,7 @@ public class ExportTypeBasedConfigManager {
             .ifPresentOrElse(service -> service.updateConfig(configId, exportConfig),
               () -> {
                 defaultExportConfigService.updateConfig(configId, exportConfig);
+                System.out.println("bursar match:"+ExportType.BURSAR_FEES_FINES.equals(exportConfig.getType()));
                 if(ExportType.BURSAR_FEES_FINES.equals(exportConfig.getType())) {
                   log.info("Bursar Job trigger needs to be done");
                 }
