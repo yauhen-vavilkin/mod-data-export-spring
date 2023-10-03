@@ -45,7 +45,7 @@ public abstract class BaseTest {
   protected static final String TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkaWt1X2FkbWluIiwidXNlcl9pZCI6IjFkM2I1OGNiLTA3YjUtNWZjZC04YTJhLTNjZTA2YTBlYjkwZiIsImlhdCI6MTYxNjQyMDM5MywidGVuYW50IjoiZGlrdSJ9.2nvEYQBbJP1PewEgxixBWLHSX_eELiBEBpjufWiJZRs";
   public static final String TENANT = "diku";
 
-  public static WireMockServer wireMockServer;
+  public static WireMockServer wireMockServer = new WireMockServer(WIRE_MOCK_PORT);
   public static PostgreSQLContainer<?> postgreDBContainer = new PostgreSQLContainer<>("postgres:13");
 
   @Autowired
@@ -55,6 +55,7 @@ public abstract class BaseTest {
 
   static {
     postgreDBContainer.start();
+    wireMockServer.start();
   }
 
   public static class DockerPostgreDataSourceInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -70,9 +71,6 @@ public abstract class BaseTest {
 
   @BeforeAll
   static void beforeAll(@Autowired MockMvc mockMvc) {
-    wireMockServer = new WireMockServer(WIRE_MOCK_PORT);
-    wireMockServer.start();
-
     setUpTenant(mockMvc);
   }
 
@@ -105,7 +103,7 @@ public abstract class BaseTest {
 
   @AfterAll
   static void tearDown() {
-    wireMockServer.stop();
+    wireMockServer.resetAll();
   }
 
 }
