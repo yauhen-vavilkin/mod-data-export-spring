@@ -105,5 +105,4 @@ public abstract class BaseTest {
   static void tearDown() {
     wireMockServer.resetAll();
   }
-
 }
